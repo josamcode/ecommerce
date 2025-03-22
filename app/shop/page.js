@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Search } from "lucide-react";
@@ -14,7 +14,7 @@ import { useLanguage } from "@/app/context/LanguageContext";
 export default function BestSellers({ type }) {
   const { language } = useLanguage();
   const t = useTranslation(language);
-  
+
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,9 +27,13 @@ export default function BestSellers({ type }) {
   const router = useRouter();
 
   const searchParams = useSearchParams();
-  const collectionFilter = searchParams.get("collection");
+  const collectionFilter = useMemo(
+    () => searchParams.get("collection"),
+    [searchParams]
+  );
 
-  const fetchUrl = "https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products";
+  const fetchUrl =
+    "https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products";
 
   useEffect(() => {
     fetch(fetchUrl)
@@ -129,9 +133,7 @@ export default function BestSellers({ type }) {
             {type === "section" ? t.BestSellersTitle : t.OurProductsTitle}
           </h2>
           <p className="text-gray-600 mt-2">
-            {type === "section"
-              ? t.BestSellersSubtitle
-              : t.OurProductsSubtitle}
+            {type === "section" ? t.BestSellersSubtitle : t.OurProductsSubtitle}
           </p>
         </div>
 
