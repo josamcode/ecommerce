@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import Card from "../../components/Card";
@@ -12,6 +13,18 @@ import useTranslation from "@/app/hooks/useTranslation";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function BestSellers({ type }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="text-center text-gray-500 py-16">Loading...</div>
+      }
+    >
+      <BestSellersContent type={type} />
+    </Suspense>
+  );
+}
+
+function BestSellersContent({ type }) {
   const { language } = useLanguage();
   const t = useTranslation(language);
 
@@ -56,7 +69,7 @@ export default function BestSellers({ type }) {
         console.error("Error fetching products:", error);
         setLoading(false);
       });
-  }, [fetchUrl]);
+  }, [fetchUrl, collectionFilter]);
 
   useEffect(() => {
     let updatedProducts = products.filter((product) =>
