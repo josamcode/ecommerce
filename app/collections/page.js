@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import useTranslation from "../hooks/useTranslation";
 import { useLanguage } from "@/app/context/LanguageContext";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function Collections({ type }) {
   const [collections, setCollections] = useState([]);
