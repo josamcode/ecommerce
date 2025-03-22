@@ -1,9 +1,42 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+a {
+  /* @apply font-serif hover:underline; */
+  @apply transition duration-300 ease-in-out;
+}
+
+h1 {
+  @apply font-bold text-4xl;
+}
+
+h2 {
+  @apply font-semibold text-3xl;
+}
+
+h3 {
+  @apply font-medium text-2xl;
+}
+
+p {
+  @apply font-light text-lg;
+}
+
+html[lang="ar"] {
+  direction: rtl;
+  text-align: right;
+}
+html[lang="en"] {
+  direction: ltr;
+  text-align: left;
+}
+
 :root {
-  --background: #ffffff;
+  --background: #ededed;
   --foreground: #171717;
 }
 
@@ -16,6 +49,12 @@
 
 body {
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
 }
+
+* {
+  font-family: "Cairo", sans-serif;
+}
+
+/* section {
+  @apply bg-gray-100;
+} */
