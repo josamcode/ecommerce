@@ -118,7 +118,7 @@ export default function Card({ product, theme = "light" }) {
       >
         <div className="relative w-full h-56 rounded-lg overflow-hidden group">
           <Image
-            src={`http://localhost:5000/images/products/${
+            src={`https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${
               product.image || product.images[0]
             }`}
             alt={product.name}

@@ -95,7 +95,7 @@ export default function ProductPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`http://localhost:5000/api/products/${id}`)
+    fetch(`https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch product");
         return res.json();
@@ -112,7 +112,7 @@ export default function ProductPage() {
   }, [id]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products")
+    fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products")
       .then((res) => res.json())
       .then((data) => {
         const filteredProducts = data.data.filter((p) => p.id !== id);
@@ -175,7 +175,7 @@ export default function ProductPage() {
                   src={
                     selectedImage.startsWith("http")
                       ? selectedImage
-                      : `http://localhost:5000/images/products/${selectedImage}`
+                      : `https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${selectedImage}`
                   }
                   alt={name}
                   fill
@@ -205,7 +205,7 @@ export default function ProductPage() {
                     src={
                       img.startsWith("http")
                         ? img
-                        : `http://localhost:5000/images/products/${img}`
+                        : `https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${img}`
                     }
                     alt="Thumbnail"
                     fill

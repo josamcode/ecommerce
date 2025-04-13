@@ -14,7 +14,7 @@ export default function HeroSection() {
 
   useEffect(() => {
     // Fetch products
-    fetch("http://localhost:5000/api/products")
+    fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products")
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.data || []);
@@ -144,7 +144,7 @@ export default function HeroSection() {
                       }}
                     >
                       <Image
-                        src={`http://localhost:5000/images/products/${product.images[0]}`}
+                        src={`https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${product.images[0]}`}
                         alt={product.name}
                         fill
                         sizes="100%"

@@ -42,7 +42,7 @@ const CheckoutForm = ({ totalPrice, setNotification }) => {
         console.log("Payment method created:", paymentMethod);
 
         // Send payment data to the server
-        const response = await fetch("http://localhost:5000/api/payments", {
+        const response = await fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/payments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -151,7 +151,7 @@ export default function Checkout() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/user/me", {
+      const response = await fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/user/me", {
         method: "GET",
         credentials: "include",
         headers: {
@@ -264,7 +264,7 @@ export default function Checkout() {
     try {
       if (paymentMethod === "delivery") {
         // Create the order with the cart data
-        const orderResponse = await fetch("http://localhost:5000/api/orders", {
+        const orderResponse = await fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/orders", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -377,7 +377,7 @@ export default function Checkout() {
                   <div key={item._id} className="flex items-center justify-between py-4 border-b border-gray-100">
                     <div className="flex items-center space-x-4">
                       <img
-                        src={`http://localhost:5000/images/products/${item.image}`}
+                        src={`https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${item.image}`}
                         alt={item.name}
                         className="w-16 h-16 rounded-lg object-cover"
                       />
@@ -642,7 +642,7 @@ export default function Checkout() {
             <div key={item.id} className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <img
-                  src={`http://localhost:5000/images/products/${item.image}`}
+                  src={`https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${item.image}`}
                   alt={item.name}
                   className="w-16 h-16 rounded object-cover"
                 />

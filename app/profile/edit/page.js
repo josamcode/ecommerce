@@ -35,7 +35,7 @@ const EditProfile = () => {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/user/me", {
+        const response = await fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/user/me", {
           method: "GET",
           credentials: "include",
           headers: {
@@ -86,7 +86,7 @@ const EditProfile = () => {
     try {
       const accessToken = Cookies.get("accessToken");
       const response = await fetch(
-        "http://localhost:5000/api/user/edit-profile",
+        "https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/user/edit-profile",
         {
           method: "PUT",
           headers: {

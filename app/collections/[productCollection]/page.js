@@ -25,7 +25,7 @@ export default function CollectionProducts() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/products");
+        const res = await fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products");
         const data = await res.json();
 
         if (res.ok) {

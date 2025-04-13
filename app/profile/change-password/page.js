@@ -37,7 +37,7 @@ const ChangePassword = () => {
     try {
       const accessToken = Cookies.get("accessToken");
       const response = await fetch(
-        "http://localhost:5000/api/user/change-password",
+        "https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/user/change-password",
         {
           method: "POST",
           headers: {

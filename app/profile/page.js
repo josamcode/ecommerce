@@ -31,7 +31,7 @@ const Profile = () => {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/user/me", {
+        const response = await fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/user/me", {
           method: "GET",
           credentials: "include",
           headers: {
@@ -48,7 +48,7 @@ const Profile = () => {
         setUser(data);
 
         const ordersResponse = await fetch(
-          `http://localhost:5000/api/orders/get-orders/${data._id}`,
+          `https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/orders/get-orders/${data._id}`,
           {
             method: "GET",
             headers: {
@@ -222,7 +222,7 @@ const Profile = () => {
                       {order.cart.map((item) => (
                         <div key={item._id} className="flex gap-4 p-4 bg-gray-50 rounded-lg">
                           <img
-                            src={`http://localhost:5000/images/products/${item.image}`}
+                            src={`https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${item.image}`}
                             alt={item.name}
                             className="w-20 h-20 object-cover rounded-lg"
                           />

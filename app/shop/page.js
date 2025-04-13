@@ -45,7 +45,7 @@ function BestSellersContent({ type }) {
     [searchParams]
   );
 
-  const fetchUrl = "http://localhost:5000/api/products";
+  const fetchUrl = "https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products";
 
   useEffect(() => {
     fetch(fetchUrl)

@@ -83,7 +83,7 @@ export default function Cart() {
                         {/* Product Image */}
                         <div className="flex-shrink-0">
                           <img
-                            src={"http://localhost:5000/images/products/" + item.image}
+                            src={"https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/" + item.image}
                             alt={item.name}
                             className="w-24 h-24 object-cover rounded-lg"
                           />

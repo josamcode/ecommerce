@@ -16,7 +16,7 @@ export default function FeaturedProducts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products")
+    fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products")
       .then((res) => res.json())
       .then((data) => {
         // Sort products by rating and review count

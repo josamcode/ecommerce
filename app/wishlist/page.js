@@ -143,7 +143,7 @@ export default function Wishlist() {
                           <div className="flex-shrink-0">
                             <img
                               src={
-                                "http://localhost:5000/images/products/" +
+                                "https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/" +
                                 item.image
                               }
                               alt={item.name}
