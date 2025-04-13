@@ -8,14 +8,16 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/app/context/LanguageContext";
 import useTranslation from "@/app/hooks/useTranslation";
+import { FiUser, FiMail, FiPhone, FiKey, FiEdit, FiLock, FiLogOut, FiPackage } from "react-icons/fi";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const router = useRouter();
 
-  // Fetch language and translations
   const { language } = useLanguage();
   const t = useTranslation(language);
 
@@ -29,7 +31,7 @@ const Profile = () => {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/user/me", {
+        const response = await fetch("http://localhost:5000/api/user/me", {
           method: "GET",
           credentials: "include",
           headers: {
@@ -44,11 +46,28 @@ const Profile = () => {
 
         const data = await response.json();
         setUser(data);
+
+        const ordersResponse = await fetch(
+          `http://localhost:5000/api/orders/get-orders/${data._id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        if (ordersResponse.ok) {
+          const ordersData = await ordersResponse.json();
+          setOrders(ordersData);
+        }
       } catch (error) {
         setError(true);
-        console.error("Error fetching user:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
+        setOrdersLoading(false);
       }
     };
 
@@ -84,104 +103,158 @@ const Profile = () => {
   return (
     <>
       <Header />
-      <div className="bg-gray-100 py-20" dir={language === "ar" ? "rtl" : "ltr"}>
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="min-h-screen bg-gray-50" dir={language === "ar" ? "rtl" : "ltr"}>
+        <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+          
           {/* Profile Header */}
-          <div className="bg-gradient-to-r from-blue-900 to-blue-600 text-white p-6">
-            <h1 className="text-2xl font-bold text-center">
-              {loading ? (
-                t.loadingMessage
-              ) : user ? (
-                <>
-                  👋 {t.helloMessage}{" "}
-                  <span className="font-bold">{user.username}</span>!
-                </>
-              ) : (
-                t.userNotFoundMessage
-              )}
-            </h1>
-          </div>
-
-          {/* Profile Content */}
-          <div className="p-6">
-            {loading ? (
-              <div className="flex flex-col items-center justify-center space-y-4">
-                <div className="w-20 h-20 bg-gray-200 animate-pulse rounded-full"></div>
-                <div className="w-48 h-6 bg-gray-200 animate-pulse rounded"></div>
-                <div className="w-64 h-4 bg-gray-200 animate-pulse rounded"></div>
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="h-32 bg-gradient-to-r from-purple-600 to-blue-600"></div>
+            <div className="relative px-6 -mt-16 pb-6">
+              <div className="flex flex-col items-center">
+                <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white shadow-lg">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center">
+                      <FiUser className="text-white w-16 h-16" />
+                    </div>
+                  )}
+                </div>
+                <h2 className="mt-4 text-2xl font-bold text-gray-900">{user?.username}</h2>
               </div>
-            ) : error ? (
-              <div className="text-center text-red-500 mt-4">
-                ❌ {t.failedToLoadUserDataMessage}{" "}
+
+              {/* Quick Actions */}
+              <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <button
-                  onClick={() => window.location.reload()}
-                  className="text-blue-500 underline"
+                  onClick={() => router.push("/profile/edit")}
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition"
                 >
-                  {t.retryButtonText}
+                  <FiEdit className="w-5 h-5 text-blue-600" />
+                  <span className="font-medium text-gray-700">{t.editProfileButtonText}</span>
+                </button>
+
+                <button
+                  onClick={() => router.push("/profile/change-password")}
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition"
+                >
+                  <FiLock className="w-5 h-5 text-blue-600" />
+                  <span className="font-medium text-gray-700">{t.changePasswordButtonText}</span>
+                </button>
+
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-100 hover:text-red-500 transition"
+                >
+                  <FiLogOut className="w-5 h-5" />
+                  <span className="font-medium">{t.logoutButtonText}</span>
                 </button>
               </div>
-            ) : user ? (
-              <div className="space-y-6">
-                {/* Avatar Section */}
-                <div className="flex flex-col items-center space-y-4">
-                  {user.avatar && (
-                    <img
-                      src={user.avatar}
-                      alt="Profile"
-                      className="w-24 h-24 rounded-full border-4 border-blue-500 object-cover"
-                    />
-                  )}
+
+              {/* User Details */}
+              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <div className="flex items-center gap-4">
+                    <FiMail className="w-6 h-6 text-blue-600" />
+                    <div>
+                      <p className="text-sm text-gray-500">{t.emailLabel}</p>
+                      <p className="font-medium text-gray-900">{user?.email}</p>
+                    </div>
+                  </div>
                 </div>
 
-                {/* User Details */}
-                <div className="space-y-2">
-                  <p className="text-gray-700 flex items-center">
-                    📧{" "}
-                    <span className="ml-2 font-medium">
-                      {t.emailLabel}: <span className="bg-gray-200 py-0 px-3 rounded-lg">{user.email}</span>
-                    </span>
-                  </p>
-                  {user.phoneNumber && (
-                    <p className="text-gray-700 flex items-center">
-                      ☎️{" "}
-                      <span className="ml-2 font-medium">
-                        {t.phoneNumberLabel}: <span className="bg-gray-200 py-0 px-3 rounded-lg">{user.phoneNumber}</span>
+                {user?.phoneNumber && (
+                  <div className="bg-gray-50 rounded-xl p-6">
+                    <div className="flex items-center gap-4">
+                      <FiPhone className="w-6 h-6 text-blue-600" />
+                      <div>
+                        <p className="text-sm text-gray-500">{t.phoneNumberLabel}</p>
+                        <p className="font-medium text-gray-900">{user.phoneNumber}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Orders Section */}
+          <div className="mt-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <FiPackage className="w-6 h-6 text-blue-600" />
+              {t.myOrders || "My Orders"}
+            </h3>
+
+            {ordersLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+              </div>
+            ) : orders && orders.length > 0 ? (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {orders.map((order) => (
+                  <div key={order._id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-6">
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                        <p className="text-sm text-gray-500">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </p>
+                        <p className="font-mono text-sm mt-2 text-purple-600">
+                          #{order._id}
+                        </p>
+                      </div>
+                      <span
+                        className={`px-4 py-2 rounded-full text-sm font-medium ${
+                          order.status === "pending"
+                            ? "bg-gray-100 text-gray-600"
+                            : order.status === "placed"
+                            ? "bg-blue-100 text-blue-700"
+                            : order.status === "shipped"
+                            ? "bg-amber-100 text-amber-700"
+                            : order.status === "delivered"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </span>
-                    </p>
-                  )}
-                  <p className="text-gray-500 flex items-center text-sm">
-                    🔑{" "}
-                    <span className="ml-2">
-                      {t.idLabel}: <span className="bg-gray-200 py-0 px-3 rounded-lg">{user._id}</span>
-                    </span>
-                  </p>
-                </div>
+                    </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button
-                    className="w-full sm:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition"
-                    onClick={() => router.push("/profile/edit")}
-                  >
-                    {t.editProfileButtonText}
-                  </button>
-                  <button
-                    className="w-full sm:w-auto px-6 py-3 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition"
-                    onClick={() => router.push("/profile/change-password")}
-                  >
-                    {t.changePasswordButtonText}
-                  </button>
-                  <button
-                    className="w-full sm:w-auto px-6 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition"
-                    onClick={handleLogout}
-                  >
-                    {t.logoutButtonText}
-                  </button>
-                </div>
+                    <div className="space-y-4">
+                      {order.cart.map((item) => (
+                        <div key={item._id} className="flex gap-4 p-4 bg-gray-50 rounded-lg">
+                          <img
+                            src={`http://localhost:5000/images/products/${item.image}`}
+                            alt={item.name}
+                            className="w-20 h-20 object-cover rounded-lg"
+                          />
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900">{item.name}</h4>
+                            <p className="text-sm text-gray-500 mt-1">
+                              {item.quantity} × ${item.price}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-gray-100">
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-gray-500">
+                          {order.paymentMethod === "cash_on_delivery" ? "Cash on Delivery" : "Credit Card"}
+                        </div>
+                        <div className="text-xl font-bold text-purple-600">
+                          ${order.totalPrice}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
-              <div className="text-center text-red-500 mt-4">
-                ❌ {t.userDataNotLoadedMessage}
+              <div className="bg-white rounded-xl p-12 text-center">
+                <FiPackage className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">
+                  {t.noOrders || "You haven't placed any orders yet."}
+                </p>
               </div>
             )}
           </div>

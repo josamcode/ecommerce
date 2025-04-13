@@ -45,8 +45,7 @@ function BestSellersContent({ type }) {
     [searchParams]
   );
 
-  const fetchUrl =
-    "https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products";
+  const fetchUrl = "http://localhost:5000/api/products";
 
   useEffect(() => {
     fetch(fetchUrl)
@@ -71,6 +70,17 @@ function BestSellersContent({ type }) {
       });
   }, [fetchUrl, collectionFilter]);
 
+  // Update the category options to match the actual product categories
+  const categoryOptions = [
+    { value: "all", label: "All Categories" },
+    { value: "mens-watches", label: "Men's Watches" },
+    { value: "womens-watches", label: "Women's Watches" },
+    { value: "smart-watches", label: "Smart Watches" },
+    { value: "classic-watches", label: "Classic Watches" },
+    { value: "watch-accessories", label: "Watch Accessories" },
+    { value: "global-brands", label: "Global Brands" }
+  ];
+
   useEffect(() => {
     let updatedProducts = products.filter((product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -78,9 +88,13 @@ function BestSellersContent({ type }) {
 
     // Filter by category
     if (category !== "all") {
-      updatedProducts = updatedProducts.filter(
-        (product) => product.category === category
-      );
+      updatedProducts = updatedProducts.filter((product) => {
+        // Handle both array and string category formats
+        if (Array.isArray(product.category)) {
+          return product.category.some(cat => cat.toLowerCase() === category.toLowerCase());
+        }
+        return product.category.toLowerCase() === category.toLowerCase();
+      });
     }
 
     // Filter by price range
@@ -160,10 +174,11 @@ function BestSellersContent({ type }) {
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
-                  <option value="all">{t.AllCategories}</option>
-                  <option value="Clothing">{t.ClothingCategory}</option>
-                  <option value="fashion">{t.FashionCategory}</option>
-                  <option value="Audio">{t.AudioCategory}</option>
+                  {categoryOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
                 <select
                   className="border rounded-lg px-4 py-2 bg-white text-gray-950 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

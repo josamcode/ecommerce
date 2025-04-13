@@ -42,7 +42,7 @@ const CheckoutForm = ({ totalPrice, setNotification }) => {
         console.log("Payment method created:", paymentMethod);
 
         // Send payment data to the server
-        const response = await fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/payments", {
+        const response = await fetch("http://localhost:5000/api/payments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -98,7 +98,7 @@ export default function Checkout() {
 
   const [cart, setCart] = useState([]);
   const [serverCart, setServerCart] = useState([]);
-
+  const [currentStep, setCurrentStep] = useState(1);
   const [userInfo, setUserInfo] = useState({
     name: "",
     email: "",
@@ -151,7 +151,7 @@ export default function Checkout() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/user/me", {
+      const response = await fetch("http://localhost:5000/api/user/me", {
         method: "GET",
         credentials: "include",
         headers: {
@@ -205,6 +205,45 @@ export default function Checkout() {
     return true;
   };
 
+  const validateAddressFields = () => {
+    const { country, city, state, street } = userInfo;
+    
+    // Regular expression to check for valid place names
+    // This regex allows letters, numbers, spaces, hyphens, apostrophes, and commas
+    const validPlaceRegex = /^[a-zA-Z0-9\s,'-]+$/;
+    
+    // Check if any field is empty
+    if (!country || !city || !state || !street) {
+      setNotification({
+        message: "Please fill in all address fields.",
+        type: "error",
+      });
+      return false;
+    }
+
+    // Check if fields contain only valid characters and at least one letter
+    if (!validPlaceRegex.test(country) || !validPlaceRegex.test(city) || 
+        !validPlaceRegex.test(state) || !validPlaceRegex.test(street)) {
+      setNotification({
+        message: "Address fields should contain valid place names with letters, numbers, spaces, hyphens, apostrophes, or commas only.",
+        type: "error",
+      });
+      return false;
+    }
+
+    // Check if fields contain only special characters or spaces
+    if (/^[\s.,]+$/.test(country) || /^[\s.,]+$/.test(city) || 
+        /^[\s.,]+$/.test(state) || /^[\s.,]+$/.test(street)) {
+      setNotification({
+        message: "Address fields cannot contain only special characters or spaces.",
+        type: "error",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -217,10 +256,15 @@ export default function Checkout() {
       return;
     }
 
+    // Validate address fields
+    if (!validateAddressFields()) {
+      return;
+    }
+
     try {
       if (paymentMethod === "delivery") {
         // Create the order with the cart data
-        const orderResponse = await fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/orders", {
+        const orderResponse = await fetch("http://localhost:5000/api/orders", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -283,92 +327,375 @@ export default function Checkout() {
   const discount = discountCode === "SAVE10" ? 10 : 0;
 
   const renderOrderSummary = () => (
-    <div className="container mx-auto my-8 px-4 sm:px-6 lg:px-10 w-full flex flex-col items-center justify-center">
-      <section className="bg-white p-8 border rounded-lg shadow-lg w-full max-w-3xl">
-        <h2 className="text-4xl font-extrabold text-blue-700 mb-8 text-center">
-          {t.OrderSummaryTitle}
-        </h2>
-
-        {/* User Information */}
-        <div className="mb-6 space-y-2">
-          <p className="text-lg">
-            <strong className="text-gray-700">{t.Name}</strong> {userInfo.name}
-          </p>
-          <p className="text-lg">
-            <strong className="text-gray-700">{t.Email}</strong>{" "}
-            {userInfo.email}
-          </p>
-          <p className="text-lg">
-            <strong className="text-gray-700">{t.PhoneLabel}</strong>{" "}
-            {userInfo.phone}
-          </p>
-          <p className="text-lg">
-            <strong className="text-gray-700">{t.AddressLabel}</strong>{" "}
-            {`${userInfo.street}, ${userInfo.city}, ${userInfo.state}, ${userInfo.country}`}
-          </p>
-          <p className="text-lg">
-            <strong className="text-gray-700">{t.PaymentMethodLabel}</strong>{" "}
-            {paymentMethod === "delivery"
-              ? t.CashOnDelivery
-              : paymentMethod === "credit_card"
-              ? "Credit Card"
-              : "Bank Transfer"}
-          </p>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Order Confirmation Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.OrderConfirmedTitle}</h1>
+          <p className="text-lg text-gray-600">{t.OrderConfirmationMessage}</p>
         </div>
 
-        {/* Ordered Items */}
-        <h3 className="text-2xl font-semibold mb-4 text-gray-800">
-          {t.OrderedItemsTitle}
-        </h3>
-        {serverCart.length > 0 ? (
-          <table className="w-full text-left mb-6">
-            <thead>
-              <tr>
-                <th className="py-2">{t.ProductLabel}</th>
-                <th className="py-2 text-center min-w-24">{t.QuantityLabel}</th>
-                <th className="py-2 text-center">{t.PriceLabel}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {serverCart.map((item) => (
-                <tr key={item._id} className="border-t">
-                  <td className="py-2 flex items-center">
-                    <img
-                      src={`https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${item.image}`}
-                      alt={item.name}
-                      className="w-10 h-10 mr-4 rounded object-cover"
-                    />
-                    {item.name}
-                  </td>
-                  <td className="py-2 text-center">{item.quantity}</td>
-                  <td className="py-2 text-center">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="text-lg text-gray-700 text-center">
-            {t.NoItemsInOrderMessage}
-          </p>
-        )}
+        {/* Order Details Card */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+          <div className="p-6 sm:p-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">{t.OrderDetailsTitle}</h2>
+            
+            {/* Order Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">{t.CustomerInfoTitle}</h3>
+                  <div className="mt-2 space-y-1">
+                    <p className="text-gray-900">{userInfo.name}</p>
+                    <p className="text-gray-600">{userInfo.email}</p>
+                    <p className="text-gray-600">{userInfo.phone}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">{t.ShippingAddressTitle}</h3>
+                  <div className="mt-2 space-y-1">
+                    <p className="text-gray-900">{userInfo.street}</p>
+                    <p className="text-gray-600">{`${userInfo.city}, ${userInfo.state}`}</p>
+                    <p className="text-gray-600">{userInfo.country}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        {/* Delivery Message */}
-        <p className="text-lg text-gray-700 mt-6 text-center">
-          {t.OrderDeliveryTimeMessage}
-        </p>
-      </section>
+            {/* Order Items */}
+            <div className="border-t border-gray-200 pt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t.OrderedItemsTitle}</h3>
+              <div className="space-y-4">
+                {serverCart.map((item) => (
+                  <div key={item._id} className="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={`http://localhost:5000/images/products/${item.image}`}
+                        alt={item.name}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                      <div>
+                        <h4 className="text-gray-900 font-medium">{item.name}</h4>
+                        <p className="text-gray-500">Qty: {item.quantity}</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-900 font-medium">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-      {/* Thank You Message */}
-      <p className="text-xl text-gray-700 mt-4 text-center">
-        {t.ThankYouMessage}
-      </p>
+            {/* Order Summary */}
+            {/* <div className="mt-8 border-t border-gray-200 pt-6">
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t.SubtotalLabel}</span>
+                  <span className="text-gray-900">${totalPrice.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t.DiscountLabel}</span>
+                  <span className="text-green-600">-${discount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between pt-3 border-t border-gray-200">
+                  <span className="text-lg font-semibold text-gray-900">{t.TotalPriceLabel}</span>
+                  <span className="text-lg font-semibold text-blue-600">
+                    ${(totalPrice - discount).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div> */}
+          </div>
+        </div>
+
+        {/* Next Steps */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="p-6 sm:p-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">{t.NextStepsTitle}</h2>
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-gray-600">{t.OrderDeliveryTimeMessage}</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-gray-600">{t.OrderConfirmationEmailMessage}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Continue Shopping Button */}
+        <div className="mt-8 text-center">
+          <Link
+            href="/shop"
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            {t.ContinueShoppingButton}
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCheckoutSteps = () => (
+    <div className="flex justify-between items-center mb-8">
+      <div className={`flex items-center ${currentStep >= 1 ? 'text-blue-600' : 'text-gray-400'}`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+          1
+        </div>
+        <span className="ml-2">{t.Shipping}</span>
+      </div>
+      <div className={`flex-1 h-1 mx-4 ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+      <div className={`flex items-center ${currentStep >= 2 ? 'text-blue-600' : 'text-gray-400'}`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+          2
+        </div>
+        <span className="ml-2">{t.Payment}</span>
+      </div>
+      <div className={`flex-1 h-1 mx-4 ${currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+      <div className={`flex items-center ${currentStep >= 3 ? 'text-blue-600' : 'text-gray-400'}`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+          3
+        </div>
+        <span className="ml-2">{t.Review}</span>
+      </div>
+    </div>
+  );
+
+  const renderShippingForm = () => (
+    <div className="space-y-6">
+      <h3 className="text-xl font-semibold text-gray-800">{t.ShippingInformation}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t.FullNamePlaceholder}</label>
+          <input
+            type="text"
+            name="name"
+            value={userInfo.name}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t.JustEmailPlaceholder}</label>
+          <input
+            type="email"
+            name="email"
+            value={userInfo.email}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t.PhonePlaceholder}</label>
+          <input
+            type="tel"
+            name="phone"
+            value={userInfo.phone}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t.CountryPlaceholder}</label>
+          <input
+            type="text"
+            name="country"
+            value={userInfo.country}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t.StreetAddressPlaceholder}</label>
+          <input
+            type="text"
+            name="street"
+            value={userInfo.street}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t.CityPlaceholder}</label>
+          <input
+            type="text"
+            name="city"
+            value={userInfo.city}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t.StatePlaceholder}</label>
+          <input
+            type="text"
+            name="state"
+            value={userInfo.state}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+      </div>
+      <div className="flex justify-end mt-6">
+        <button
+          type="button"
+          onClick={() => setCurrentStep(2)}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          {t.ContinueToPayment}
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderPaymentForm = () => (
+    <div className="space-y-6">
+      <h3 className="text-xl font-semibold text-gray-800">{t.PaymentMethodLabel}</h3>
+      <div className="space-y-4">
+        <div className="flex items-center space-x-4">
+          <button
+            type="button"
+            onClick={() => setPaymentMethod("delivery")}
+            className={`flex-1 p-4 border rounded-lg ${
+              paymentMethod === "delivery"
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-300"
+            }`}
+          >
+            <div className="flex items-center">
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3 ${
+                paymentMethod === "delivery" ? "border-blue-500 bg-blue-500" : "border-gray-300"
+              }`}>
+                {paymentMethod === "delivery" && (
+                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                )}
+              </div>
+              <span className="font-medium">{t.CashOnDelivery}</span>
+            </div>
+          </button>
+          <button
+            type="button"
+            className="flex-1 p-4 border border-gray-300 rounded-lg opacity-50 cursor-not-allowed"
+            disabled
+          >
+            <div className="flex items-center">
+              <div className="w-6 h-6 rounded-full border-2 border-gray-300 mr-3"></div>
+              <span className="font-medium">{t.CreditCard}</span>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div className="flex justify-between mt-6">
+        <button
+          type="button"
+          onClick={() => setCurrentStep(1)}
+          className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          {t.Back}
+        </button>
+        <button
+          type="button"
+          onClick={() => setCurrentStep(3)}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          {t.ContinueToReview}
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderReviewForm = () => (
+    <div className="space-y-6">
+      <h3 className="text-xl font-semibold text-gray-800">{t.OrderSummaryTitle}</h3>
+      <div className="bg-gray-50 p-6 rounded-lg">
+        <div className="space-y-4">
+          {cart.map((item) => (
+            <div key={item.id} className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <img
+                  src={`http://localhost:5000/images/products/${item.image}`}
+                  alt={item.name}
+                  className="w-16 h-16 rounded object-cover"
+                />
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-gray-500">{t.QuantityLabel}: {item.quantity}</p>
+                </div>
+              </div>
+              <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+            </div>
+          ))}
+        </div>
+        <div className="border-t border-gray-200 mt-6 pt-6 space-y-2">
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t.SubtotalLabel}</span>
+            <span className="font-medium">${totalPrice.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t.DiscountLabel}</span>
+            <span className="text-green-600">-${discount.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between pt-2 border-t border-gray-200">
+            <span className="font-semibold">{t.TotalPriceLabel}</span>
+            <span className="font-semibold text-blue-600">
+              ${(totalPrice - discount).toFixed(2)}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-between mt-6">
+        <button
+          type="button"
+          onClick={() => setCurrentStep(2)}
+          className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          {t.Back}
+        </button>
+        <button
+          type="submit"
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          {t.PlaceOrderButton}
+        </button>
+      </div>
     </div>
   );
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   return (
@@ -383,187 +710,19 @@ export default function Checkout() {
       {orderSuccess ? (
         renderOrderSummary()
       ) : (
-        <section
-          className={`container mx-auto my-16 px-4 sm:px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-10`}
-        >
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-6 bg-white p-6 border rounded-md shadow-md"
-          >
-            <h2 className="text-3xl font-bold text-blue-600 mb-6">
-              {t.CheckoutTitle}
-            </h2>
-            <div className="flex space-x-4">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("delivery")}
-                className={`px-4 py-2 border rounded-md ${
-                  paymentMethod === "delivery"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200"
-                } ${language === "ar" ? "ml-3" : ""}`}
-              >
-                {t.CashOnDelivery}
-              </button>
-              <button
-                type="button"
-                // onClick={() => setPaymentMethod("credit_card")}
-                className={`px-4 py-2 border rounded-md flex items-center space-x-2 cursor-not-allowed ${
-                  paymentMethod === "credit_card"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200"
-                }`}
-                disabled
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
-                  <path
-                    fillRule="evenodd"
-                    d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 011 1v1a1 1 0 01-1 1H5a1 1 0 01-1-1v-1zm8-6a1 1 0 011-1h1a1 1 0 011 1v1a1 1 0 01-1 1h-1a1 1 0 01-1-1V7z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span>{t.CreditCard}</span>
-              </button>
-            </div>
-            <input
-              type="text"
-              name="name"
-              placeholder={t.FullNamePlaceholder}
-              value={userInfo.name}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder={t.JustEmailPlaceholder}
-              value={userInfo.email}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-            <input
-              type="tel"
-              name="phone"
-              placeholder={t.PhonePlaceholder}
-              value={userInfo.phone}
-              onChange={handleInputChange}
-              className={`w-full p-2 border rounded-md`}
-              required
-            />
-            <input
-              type="text"
-              name="country"
-              placeholder={t.CountryPlaceholder}
-              value={userInfo.country}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded-md"
-            />
-            <input
-              type="text"
-              name="street"
-              placeholder={t.StreetAddressPlaceholder}
-              value={userInfo.street}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded-md"
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                type="text"
-                name="city"
-                placeholder={t.CityPlaceholder}
-                value={userInfo.city}
-                onChange={handleInputChange}
-                className="p-2 border rounded-md"
-              />
-              <input
-                type="text"
-                name="state"
-                placeholder={t.StatePlaceholder}
-                value={userInfo.state}
-                onChange={handleInputChange}
-                className="p-2 border rounded-md"
-              />
-            </div>
-            {paymentMethod === "credit_card" && (
-              <Elements stripe={stripePromise}>
-                <CheckoutForm
-                  totalPrice={totalPrice}
-                  setNotification={setNotification}
-                />
-              </Elements>
-            )}
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" required />
-              <span className="cursor-pointer">
-                {t.TermsAndConditionsMessage}{" "}
-                <Link href="/terms" className="text-blue-600 hover:underline">
-                  {t.TermsAndConditions}
-                </Link>
-                .
-              </span>
-            </label>
-            <button
-              type="submit"
-              className="w-full py-3 bg-blue-600 text-white font-semibold rounded-md"
-            >
-              {t.PlaceOrderButton}
-            </button>
-          </form>
-          <div className="p-6 border h-max bg-white rounded-md shadow-md">
-            <h2 className="text-3xl font-bold text-blue-600 mb-6">
-              {t.ReviewCartTitle}
-            </h2>
-            <table className="w-full text-left mb-6">
-              <thead>
-                <tr
-                >
-                  <th className="py-2">{t.ProductLabel}</th>
-                  <th className="py-2 text-center min-w-24">
-                    {t.QuantityLabel}
-                  </th>
-                  <th className="py-2 text-center">{t.PriceLabel}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cart.map((item) => (
-                  <tr key={item.id} className="border-t">
-                    <td className="py-2 flex items-center">
-                      <img
-                        src={`https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${item.image}`}
-                        alt={item.name}
-                        className={`w-10 h-10 mr-4 rounded object-cover`}
-                      />
-                      {item.name}
-                    </td>
-                    <td className="py-2 text-center">{item.quantity}</td>
-                    <td className="py-2">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div>
-              <p className="text-lg font-semibold">
-                {t.SubtotalLabel} ${totalPrice.toFixed(2)}
-              </p>
-              <p className="text-lg font-semibold">
-                {t.DiscountLabel} -${discount.toFixed(2)}
-              </p>
-              <p className="text-2xl font-bold mt-2 text-blue-600">
-                {t.TotalPriceLabel} ${(totalPrice - discount).toFixed(2)}
-              </p>
+        <div className="min-h-screen bg-gray-50 py-12">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-8">{t.CheckoutTitle}</h1>
+            {renderCheckoutSteps()}
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <form onSubmit={handleSubmit}>
+                {currentStep === 1 && renderShippingForm()}
+                {currentStep === 2 && renderPaymentForm()}
+                {currentStep === 3 && renderReviewForm()}
+              </form>
             </div>
           </div>
-        </section>
+        </div>
       )}
       <Footer />
     </>

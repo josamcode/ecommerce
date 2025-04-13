@@ -10,12 +10,12 @@ import { useLanguage } from "@/app/context/LanguageContext";
 export default function DealsOffers() {
   const { language } = useLanguage();
   const t = useTranslation(language);
-  
+
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products")
+    fetch("http://localhost:5000/api/products")
       .then((res) => res.json())
       .then((data) => {
         // Calculate discount percentage for each product

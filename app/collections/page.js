@@ -14,7 +14,7 @@ export default function Collections({ type }) {
   const t = useTranslation(language);
 
   useEffect(() => {
-    fetch(`https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/collections?lang=${language}`)
+    fetch(`http://localhost:5000/api/collections?lang=${language}`)
       .then((res) => res.json())
       .then((data) => setCollections(data));
   }, [language]);
@@ -45,7 +45,10 @@ export default function Collections({ type }) {
               >
                 <div className="relative w-full h-64">
                   <Image
-                    src={collection.image}
+                    src={
+                      "http://localhost:5000/images/collections/" +
+                      collection.image
+                    }
                     alt={collection.name}
                     fill
                     sizes="100%"

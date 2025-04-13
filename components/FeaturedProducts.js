@@ -11,12 +11,12 @@ import { useLanguage } from "@/app/context/LanguageContext";
 export default function FeaturedProducts() {
   const { language } = useLanguage();
   const t = useTranslation(language);
-  
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products")
+    fetch("http://localhost:5000/api/products")
       .then((res) => res.json())
       .then((data) => {
         // Sort products by rating and review count
@@ -42,8 +42,8 @@ export default function FeaturedProducts() {
   }
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-10 bg-gray-900 text-white">
-      <div className="container mx-auto">
+    <section className="bg-gray-900 text-white">
+      <div className="container mx-auto py-16 px-4 sm:px-6 lg:px-10">
         <div className="max-w-7xl mx-auto text-center">
           {/* Title */}
           <h2 className="sm:text-2xl lg:text-4xl font-bold text-white">

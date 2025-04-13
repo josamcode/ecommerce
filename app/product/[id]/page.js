@@ -95,9 +95,7 @@ export default function ProductPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(
-      `https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products/${id}`
-    )
+    fetch(`http://localhost:5000/api/products/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch product");
         return res.json();
@@ -114,7 +112,7 @@ export default function ProductPage() {
   }, [id]);
 
   useEffect(() => {
-    fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/products")
+    fetch("http://localhost:5000/api/products")
       .then((res) => res.json())
       .then((data) => {
         const filteredProducts = data.data.filter((p) => p.id !== id);
@@ -168,24 +166,54 @@ export default function ProductPage() {
       <Header />
       <div className={`container mx-auto px-4 sm:px-6 lg:px-10 py-24 `}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 rounded-lg">
-          {/* Product Image */}
-          <div className="bg-gray-200 rounded-lg overflow-hidden">
-            {selectedImage ? (
-              <Image
-                src={
-                  selectedImage.startsWith("http")
-                    ? selectedImage
-                    : `https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${selectedImage}`
-                }
-                alt={name}
-                width={500}
-                height={500}
-                priority
-                className="w-full h-auto object-cover"
-              />
-            ) : (
-              <p className="text-center text-gray-500">{t.NoImageAvailable}</p>
-            )}
+          {/* Product Images */}
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Main Image */}
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-white shadow-sm flex-1">
+              {selectedImage ? (
+                <Image
+                  src={
+                    selectedImage.startsWith("http")
+                      ? selectedImage
+                      : `http://localhost:5000/images/products/${selectedImage}`
+                  }
+                  alt={name}
+                  fill
+                  priority
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-gray-500">{t.NoImageAvailable}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnails - Vertical on desktop, horizontal on mobile */}
+            <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible lg:w-20 p-2">
+              {images?.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(img)}
+                  className={`relative aspect-square min-w-[80px] lg:min-w-[80px] rounded-lg overflow-hidden ${
+                    selectedImage === img
+                      ? "ring-2 ring-blue-500"
+                      : "hover:ring-2 hover:ring-gray-200"
+                  }`}
+                >
+                  <Image
+                    src={
+                      img.startsWith("http")
+                        ? img
+                        : `http://localhost:5000/images/products/${img}`
+                    }
+                    alt="Thumbnail"
+                    fill
+                    className="object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Product Details */}
@@ -360,30 +388,6 @@ export default function ProductPage() {
               </div>
             </div>
           )}
-
-          {/* Thumbnails */}
-          <div className="flex items-center gap-2 overflow-x-auto">
-            {images &&
-              images.map((img, index) => (
-                <Image
-                  key={index}
-                  src={
-                    img.startsWith("http")
-                      ? img
-                      : `https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${img}`
-                  }
-                  alt="Thumbnail"
-                  width={80}
-                  height={80}
-                  className={`w-20 h-14 object-cover cursor-pointer rounded-lg border-2 ${
-                    selectedImage === img
-                      ? "border-blue-500"
-                      : "border-gray-300"
-                  }`}
-                  onClick={() => setSelectedImage(img)}
-                />
-              ))}
-          </div>
         </div>
       </div>
 
