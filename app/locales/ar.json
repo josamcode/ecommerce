@@ -255,21 +255,5 @@
   "loginWithGoogle": "تسجيل الدخول باستخدام جوجل",
   "comingSoon": "قريباً",
   "registerHeroTitle": "انضم إلى مجتمع الساعات لدينا",
-  "registerHeroSubtitle": "أنشئ حسابك لبدء استكشاف مجموعتنا الحصرية من الساعات والاستمتاع بمزايا العضوية",
-  "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
-  "loginLink": "تسجيل الدخول",
-  "fullNamePlaceholder": "الاسم الكامل",
-  "emailPlaceholder": "البريد الإلكتروني",
-  "phoneNumberPlaceholder": "رقم الهاتف",
-  "passwordPlaceholder": "كلمة المرور",
-  "registerButton": "إنشاء حساب",
-  "errorsFullNameRequired": "الاسم الكامل مطلوب",
-  "errorsEmailRequired": "البريد الإلكتروني مطلوب",
-  "errorsEmailInvalid": "الرجاء إدخال بريد إلكتروني صحيح",
-  "errorsPasswordRequired": "كلمة المرور مطلوبة",
-  "errorsPasswordMinLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
-  "errorsPhoneNumberRequired": "رقم الهاتف مطلوب",
-  "errorsPhoneNumberInvalid": "الرجاء إدخال رقم هاتف صحيح",
-  "notificationSuccess": "تم إنشاء الحساب بنجاح!",
-  "notificationError": "حدث خطأ في إنشاء الحساب. الرجاء المحاولة مرة أخرى."
+  "registerHeroSubtitle": "أنشئ حسابك لبدء استكشاف مجموعتنا الحصرية من الساعات والاستمتاع بمزايا العضوية"
 }

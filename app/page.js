@@ -23,6 +23,21 @@ export default function Home() {
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
   }, [language]);
 
+  useEffect(() => {
+    fetch("https://eastern-maryjane-josamcode-baebec38.koyeb.app/api/visits", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ page: "home" }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Visit count:", data.visits);
+      })
+      .catch((err) => console.error("Error tracking visit:", err));
+  }, []);
+
   if (!clientLanguage) return null;
 
   return (
