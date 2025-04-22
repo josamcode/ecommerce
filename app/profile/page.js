@@ -222,7 +222,7 @@ const Profile = () => {
                       {order.cart.map((item) => (
                         <div key={item._id} className="flex gap-4 p-4 bg-gray-50 rounded-lg">
                           <img
-                            src={`https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${item.image}`}
+                            src={`https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/${item.image || item.images[0]}`}
                             alt={item.name}
                             className="w-20 h-20 object-cover rounded-lg"
                           />

@@ -22,7 +22,6 @@ export default function Wishlist() {
 
   const { language } = useLanguage();
   const t = useTranslation(language);
-  
 
   useEffect(() => {
     const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
@@ -144,7 +143,7 @@ export default function Wishlist() {
                             <img
                               src={
                                 "https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/" +
-                                item.image
+                                (item.image || item.images[0])
                               }
                               alt={item.name}
                               className="w-24 h-24 object-cover rounded-lg"

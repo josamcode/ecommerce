@@ -65,7 +65,9 @@ export default function Cart() {
 
             {cart.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                <p className="text-gray-600 text-lg mb-6">{t.EmptyCartMessage}</p>
+                <p className="text-gray-600 text-lg mb-6">
+                  {t.EmptyCartMessage}
+                </p>
                 <Link
                   href="/shop"
                   className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
@@ -83,7 +85,10 @@ export default function Cart() {
                         {/* Product Image */}
                         <div className="flex-shrink-0">
                           <img
-                            src={"https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/" + item.image}
+                            src={
+                              "https://eastern-maryjane-josamcode-baebec38.koyeb.app/images/products/" +
+                              (item.image || item.images[0])
+                            }
                             alt={item.name}
                             className="w-24 h-24 object-cover rounded-lg"
                           />
@@ -154,7 +159,9 @@ export default function Cart() {
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <span className="text-gray-600">{t.SubtotalLabel}</span>
-                      <span className="font-medium">${totalPrice.toFixed(2)}</span>
+                      <span className="font-medium">
+                        ${totalPrice.toFixed(2)}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">{t.ShippingLabel}</span>
